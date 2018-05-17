@@ -4,7 +4,6 @@ from mpl_toolkits.mplot3d import Axes3D
 from scipy.spatial import voronoi_plot_2d
 
 def _draw_voronoi(terrain):
-    fig = plt.figure()
     voronoi_plot_2d(terrain.mesh)
     plt.show()
 
@@ -20,8 +19,8 @@ def _draw_heights(terrain):
             h[1])
         , terrain.heights))
 
-    above = filter(lambda v: v[2] > 0.0, val)
-    under = filter(lambda v: v[2] < 0.0, val)
+    above = filter(lambda v: v[2] > 0.45, val)
+    under = filter(lambda v: v[2] < 0.45, val)
 
     above_coord = list(zip(*above))
     under_coord = list(zip(*under))
@@ -33,7 +32,7 @@ def _draw_heights(terrain):
 
 
 def main():
-    terrain = mapgenerator.terrain.Terrain(1024, relaxations=1)
+    terrain = mapgenerator.terrain.Terrain(4096, relaxations=2)
     _draw_heights(terrain)
 
 if __name__ == '__main__':

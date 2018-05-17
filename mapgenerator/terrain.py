@@ -8,14 +8,15 @@ from noise import snoise2
 
 BLUE_NOISE_CANDIDATES = 4
 OCTAVES = 8
-PERSISTENCE = 0.5
-LACUNARITY = 2.0
+PERSISTENCE = 0.8
+LACUNARITY = 2.5
+
+
+def dist(a,b):
+    return (a[0]-b[0])**2 + (a[1]-b[1])**2
 
 
 def _sample_blue_noise(P, w=1.0, h=1.0):
-    def dist(a,b):
-        return (a[0]-b[0])**2 + (a[1]-b[1])**2
-
     candidates = []
     for i in range(BLUE_NOISE_CANDIDATES):
         candidates.append([random.uniform(0.0, w), random.uniform(0.0, h)])
@@ -23,10 +24,16 @@ def _sample_blue_noise(P, w=1.0, h=1.0):
     return np.append(P, [best], axis=0)
 
 
-def _create_grid( n):
+def _sample_white_noise(P, w=1.0, h=1.0):
+    new = [random.uniform(0.0, w), random.uniform(0.0, h)]
+    return np.append(P, [new], axis=0)
+
+
+def _create_grid(n):
     P = np.empty([0,2])
     for i in range(n):
-        P = _sample_blue_noise(P)
+        #P = _sample_blue_noise(P)
+        P = _sample_white_noise(P)
     return P
 
 
@@ -62,6 +69,10 @@ class Terrain:
     def generate_heightmap(self):
         for i in range(len(self.mesh.points)):
             p = self.mesh.points[i]
-            height = snoise2(p[0], p[1], base=self.seed, octaves=OCTAVES, persistence=PERSISTENCE, lacunarity=LACUNARITY)
+            height = (snoise2(p[0], p[1], base=self.seed, octaves=OCTAVES, persistence=PERSISTENCE, lacunarity=LACUNARITY) + 1) / 2
+
+            gradient = max(1.0 - 2 * dist(p, [0.5, 0.5]), 0.0)
+            height *= gradient
+
             self.heights.append((i, height))
 
